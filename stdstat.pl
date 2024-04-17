@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+# usage:Use a loop to iterate through all your samples
+#perl stdstat.pl ${your_sample_name} ${your_sample_name}_R1.fq ${your_sample_name}_R2.fq >> stdnum.txt
+
 use strict;
 use warnings;
 
