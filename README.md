@@ -50,23 +50,18 @@ N_st represents the normalized GSM counts. l_1 and l_2 denote the average read l
 
 
 ### for pair-end sequencing:
-``` 
-for file in `ls ./qc/*_p.fq`;do
-smpname=`echo ${file} | sed 's|.*/\(.*\)_p\.fq|\1|'`
-avglen=`perl -ne 'BEGIN{$min=1e10;$max=0;}next if ($.%4);chomp;$read_count++;$cur_length=length($_);$total_length+=$cur_length;END{print $total_length/$read_count,qq{ \n}}' ${file}`
-linenum=`wc -l ${file}|awk 'BEGIN{FS=" "}{print $1}'`
-readsnum=$((${linenum}/4))
-echo -e "${smpname}\t${avglen}\t${readsnum}" >> seqstat.txt
-done
+```
+for i in your_sample_names;do
 
-Rscript stdnum.R
+perl stdstat.pl ${i} $your_dir/your_R1_fastq $your_dir/your_R2_fastq >> stdnum.txt
+
+done 
 
 ``` 
 
 ### for single-end sequencing:
 
 ``` 
-echo -e "smpname\tstdnum" > stdnum.txt
 
 for file in `ls ./qc/*_p.fq`;do
 smpname=`echo ${file} | sed 's|.*/\(.*\)_p\.fq|\1|'`
@@ -88,11 +83,13 @@ Use the mmseqs to align pathogenic bacteria GSM with environmental sample sequen
 mkdir results
 
 for i in `seq 1 10`;do
-for file in `ls ./qc/*_p.fq`;do
-outname=`echo ${file} | awk -F'/' '{sub("_p.fq", "", $NF); print $NF}'`
-mmseqs easy-search ./gsmfa/gsmset${i}.fa ${file} ./results/${outname}_set${i}.out ./tmp --search-type 3 --min-aln-len 50 --min-seq-id 1 
+for j in your_sample_list ;do
+
+mmseqs easy-search $your_dir/gsmfa/gsmset${i}.fa $your_dir/your_R1_fastq ./results/${j}_1_set${i}.out ./results/tmp --search-type 3 --min-aln-len 50 --min-seq-id 1 --threads 32
+mmseqs easy-search $your_dir/gsmfa/gsmset${i}.fa $your_dir/your_R2_fastq ./results/${j}_1_set${i}.out ./results/tmp --search-type 3 --min-aln-len 50 --min-seq-id 1 --threads 32
+
 done
-done
+done 
 
 ``` 
 
@@ -111,7 +108,7 @@ Count the matching numbers between GSM and samples, and correct them according t
 --outdir: File where the output results are stored.
 
 ``` 
-Rscript stat_and_std.R --rdir results --thr 2 --speid speid.txt --outdir out --std stdnum.txt
+Rscript stat_and_std_0410.R --rdir results --thr 2 --speid speid.txt --outdir out --std stdnum.txt
 ``` 
 
 Below is an example of a result file:
