@@ -41,7 +41,7 @@ sub calculate_seq_count {
     open(my $fh, '<', $filename) or die "Could not open file '$filename' $!";
     my $count = 0;
     while (<$fh>) {
-        $count++ if $. % 4 == 1; # 每4行计数一次
+        $count++ if $. % 4 == 1; 
     }
     close $fh;
     return $count;
